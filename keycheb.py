@@ -3,7 +3,7 @@ from numpy.polynomial import Chebyshev
 
 xdata = [(2 / 11) * n - 1 for n in range(12)]
 ydata = [2**(n / 12) for n in range(12)]
-poly = Chebyshev.fit(xdata, ydata, 4)
+poly = Chebyshev.fit(xdata, ydata, 3)
 print(poly)
 print(poly.coef)
 
