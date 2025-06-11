@@ -1,8 +1,8 @@
 import numpy as np
 from numpy.polynomial import Chebyshev
 
-xdata = [n for n in range(12)]
-ydata = [2**(n/12) for n in xdata]
+xdata = [(2 / 11) * n - 1 for n in range(12)]
+ydata = [2**(n / 12) for n in range(12)]
 poly = Chebyshev.fit(xdata, ydata, 4)
 print(poly)
 print(poly.coef)
@@ -80,6 +80,6 @@ def clenshaw(a: np.ndarray, x: float) -> float:
     # b_k_plus_2 holds b_1 (it held b_k_plus_1 from the iteration before the last)
     return b_k_plus_1 - x * b_k_plus_2
 
-for n in xdata:
-    y = n / 6  - 1
-    print(n, 2**(n/12), poly(n), tpoly(poly.coef, y), clenshaw(poly.coef, y))
+for y in xdata:
+    n = (y + 1) * (11 / 2)
+    print(n, 2**(n/12), poly(y), tpoly(poly.coef, y), clenshaw(poly.coef, y))
