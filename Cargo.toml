@@ -1,7 +1,4 @@
 [package]
-name = "key_to_freq"
+name = "keytones"
 version = "0.1.0"
 edition = "2024"
-
-[lib]
-path = "src/gemini.rs"
