@@ -1,7 +1,7 @@
-/// Directly computes the frequency for a given midi key value,
+/// Directly computes the frequency for a given midi key value $k$,
 /// using the formula
-///    $$440 \cdot 2**((key - 69)/12)$$
-/// for $key$ in $[0..127]$$
+///    $$440 \cdot 2^{\frac{k - 69}{12}}$$
+/// for $k$ in $[0..127]$.
 ///
 /// # Examples
 ///

@@ -1,0 +1,74 @@
+# Thanks to Google Gemini 2.5 Flash for these actions.
+
+# Name of the workflow
+name: Publish Rustdoc to GitHub Pages
+
+# When the workflow runs
+on:
+  push:
+    # Triggers on pushes to the 'main' branch (or your default branch)
+    branches:
+      - main
+    # Only run if there are changes in Rust files or the workflow itself
+    paths:
+      - 'src/**.rs'
+      - '.github/workflows/rustdoc.yml'
+  # Allows you to manually trigger the workflow from the GitHub Actions UI
+  workflow_dispatch:
+
+# Permissions granted to the GITHUB_TOKEN
+# This is crucial for GitHub Pages deployments
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Jobs to be executed
+jobs:
+  # Job to build and deploy the documentation
+  deploy_docs:
+    # Runs on the latest Ubuntu runner
+    runs-on: ubuntu-latest
+    # Environment for GitHub Pages deployment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install Rust toolchain
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      # Generate Rustdoc documentation
+      # --all-features ensures docs are generated for all features
+      # --no-deps speeds up the process by not generating docs for dependencies
+      - name: Generate Rustdoc
+        run: cargo doc --release --no-deps --workspace
+
+      # Prepare the docs for GitHub Pages
+      # Rustdoc generates docs into `target/doc/<crate_name>/`
+      # GitHub Pages expects an `index.html` at the root of the served directory.
+      # This step creates a simple `index.html` that redirects to your crate's docs.
+      # Replace 'keytones' with your actual crate name if different.
+      - name: Prepare docs for GitHub Pages
+        run: echo '<meta http-equiv="refresh" content="0;url=keytones/index.html">' > target/doc/index.html
+
+      # Configure GitHub Pages deployment
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # Upload the generated documentation as an artifact
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Path to the directory containing your static files for deployment
+          path: 'target/doc'
+
+      # Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
