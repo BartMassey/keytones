@@ -2,7 +2,7 @@ import numpy as np
 from numpy.polynomial import Chebyshev
 
 xdata = [(2 / 11) * n - 1 for n in range(12)]
-ydata = [2**(n / 12) for n in range(12)]
+ydata = [440 * 2**((n + 116 - 69) / 12) for n in range(12)]
 poly = Chebyshev.fit(xdata, ydata, 3)
 print(poly)
 print(poly.coef)
@@ -80,6 +80,7 @@ def clenshaw(a: np.ndarray, x: float) -> float:
     # b_k_plus_2 holds b_1 (it held b_k_plus_1 from the iteration before the last)
     return b_k_plus_1 - x * b_k_plus_2
 
-for y in xdata:
-    n = (y + 1) * (11 / 2)
-    print(n, 2**(n/12), poly(y), tpoly(poly.coef, y), clenshaw(poly.coef, y))
+for n in range(116, 128):
+    f = 440 * 2**((n - 69)/12)
+    y = (n - 116) * 2 / 11 - 1
+    print(n, f, poly(y), tpoly(poly.coef, y), clenshaw(poly.coef, y))

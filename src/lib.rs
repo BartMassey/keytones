@@ -15,16 +15,17 @@
 /// Panics if `key` is not in the range `0..=127`.
 pub fn key_to_freq(key: u8) -> f32 {
     assert!(key < 128);
-    440.0 * f32::powf(2.0, (key - 69) as f32 / 12.0)
+    440.0 * f32::powf(2.0, (key as f32 - 69.0) / 12.0)
 }
 
 // From Python written by Google Gemini 2.5 Flash 2025-06-10
 /**
-Computes an approximation of $2**(n/12)$ for $n$ in
-$[0..11]$.
+Computes an approximation of
+$$440 \cdot 2^{\frac{n + 116 - 69}{12}}$$
+for $n$ in $[0..11]$.
 
-The approximation evaluates a Chebyshev series $$P(x) =
-sum(a_k * T_k(x))$$ at at $x = (n - 116) * (2 / 11) - 1$
+The approximation evaluates a Chebyshev series $$P(y) =
+sum(a_k * T_k(y))$$ at $y = n * (2 / 11) - 1$
 using Clenshaw's algorithm. The series coefficients are
 calculated using NumPy's `Chebyshev.fit()`. The accuracy
 is about five significant digits at the given points.
@@ -39,7 +40,12 @@ Panics if `n` is not in the range `0..=11`.
 */
 #[allow(unused)]
 fn octave_approx(n: u8) -> f32 {
-    const A: [f32; 4] = [1.40884464, 0.44202539, 0.03495718, 0.0018473];
+    const A: [f32; 4] = [
+        9361.59673962,
+        2937.20351839,
+        232.2860851,
+        12.27506723,
+    ];
     const N: usize = 4 - 1;
 
     // Convert `n` to -1..1 for Chebyshev.
@@ -72,8 +78,10 @@ fn octave_approx(n: u8) -> f32 {
 #[test]
 fn test_octave_approx() {
     for n in 0..12 {
-        let delta = octave_approx(n) - f32::powf(2.0, n as f32 / 12.0);
-        assert!(delta.abs() < 0.0001);
+        let exact = 440.0 * f32::powf(2.0, (n + 116 - 69) as f32 / 12.0);
+        let approx = octave_approx(n);
+        let error = (approx - exact).abs();
+        assert!(error < 1.0, "{} {}", exact, approx);
     }
 }
 
@@ -116,11 +124,10 @@ fn test_key_to_params() {
 pub fn key_to_freq_approx(key: u8) -> f32 {
     let (m, o) = key_to_params(key);
 
-    let f = f32::powf(2.0, (116.0 - 69.0) / 12.0) * 440.0;
-    let t = octave_approx(m) * f;
+    let f = octave_approx(m);
     let p = f32::powf(2.0, -(o as f32));
 
-    t * p
+    f * p
 }
 
 #[test]
@@ -131,6 +138,10 @@ fn test_key_to_freq_approx() {
         f32::abs(x - y) < 0.001 * f32::min(x, y)
     }
 
-    assert!(matches(69));
-    assert!(matches(116));
+    assert!(matches(69), "{}", 69);
+    assert!(matches(116), "{}", 116);
+
+    for k in 0..127 {
+        assert!(matches(k), "{}", k);
+    }
 }
