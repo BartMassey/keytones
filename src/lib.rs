@@ -1,3 +1,5 @@
+mod consts;
+
 /// Directly computes the frequency for a given midi key value $k$,
 /// using the formula
 ///    $$440 \cdot 2^{\frac{k - 69}{12}}$$
@@ -40,13 +42,8 @@ Panics if `n` is not in the range `0..=11`.
 */
 #[allow(unused)]
 fn octave_approx(n: u8) -> f32 {
-    const A: [f32; 4] = [
-        9361.59673962,
-        2937.20351839,
-        232.2860851,
-        12.27506723,
-    ];
-    const N: usize = 4 - 1;
+    use consts::CHEBYSHEV_TOP_OCTAVE as A;
+    const N: usize = A.len() - 1;
 
     // Convert `n` to -1..1 for Chebyshev.
     assert!(n < 12);
