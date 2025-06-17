@@ -1,3 +1,5 @@
+use microcheby::ChebyshevExpansion as C;
+
 mod consts {
     include!(concat!(env!("OUT_DIR"), "/consts.rs"));
 }
@@ -20,68 +22,6 @@ mod consts {
 pub fn key_to_freq(key: u8) -> f32 {
     assert!(key < 128);
     440.0 * f32::powf(2.0, (key as f32 - 69.0) / 12.0)
-}
-
-// From Python written by Google Gemini 2.5 Flash 2025-06-10
-/**
-Computes an approximation of
-$$440 \cdot 2^{\frac{n + 116 - 69}{12}}$$
-for $n$ in $[0..11]$.
-
-The approximation evaluates a Chebyshev series $$P(y) =
-sum(a_k * T_k(y))$$ at $y = n * (2 / 11) - 1$
-using Clenshaw's algorithm. The series coefficients are
-calculated using NumPy's `Chebyshev.fit()`. The accuracy
-is about five significant digits at the given points.
-
-This approach probably strictly worse than a direct
-calculation using `pow()`, but is kept for reference
-reasons.
-
-# Panics
-
-Panics if `n` is not in the range `0..=11`.
-*/
-#[allow(unused)]
-fn octave_approx(n: u8) -> f32 {
-    use consts::CHEBYSHEV_TOP_OCTAVE as A;
-    const N: usize = A.len() - 1;
-
-    // Convert `n` to -1..1 for Chebyshev.
-    assert!(n < 12);
-    let x = n as f32 * (2.0 / 11.0) - 1.0;
-
-    // This is b_{N+1} (or equivalent for recurrence).
-    let mut b_k_plus_2 = 0.0;
-    // This is b_N (or equivalent for recurrence).
-    let mut b_k_plus_1 = A[N];
-
-    // `k` is the index of the current coefficient `A[k]` being processed.
-    let mut k = (N - 1);
-    loop {
-        // Calculate b_k using the recurrence relation.
-        let b_k = A[k] + 2.0 * x * b_k_plus_1 - b_k_plus_2;
-
-        // Shift the b values for the next iteration.
-        b_k_plus_2 = b_k_plus_1;
-        b_k_plus_1 = b_k;
-
-        if k == 0 {
-            break;
-        }
-        k -= 1;
-    }
-    b_k_plus_1 - x * b_k_plus_2
-}
-
-#[test]
-fn test_octave_approx() {
-    for n in 0..12 {
-        let exact = 440.0 * f32::powf(2.0, (n + 116 - 69) as f32 / 12.0);
-        let approx = octave_approx(n);
-        let error = (approx - exact).abs();
-        assert!(error < 1.0, "{} {}", exact, approx);
-    }
 }
 
 fn key_to_params(key: u8) -> (u8, u8) {
@@ -122,8 +62,8 @@ fn test_key_to_params() {
 /// Panics if `key` is not in the range `0..=127`.
 pub fn key_to_freq_approx(key: u8) -> f32 {
     let (m, o) = key_to_params(key);
-
-    let f = octave_approx(m);
+    let approx = C::const_new(0.0, 4.0 / 11.0, consts::CHEBYSHEV_TOP_OCTAVE);
+    let f = approx.eval_4(m as f32);
     let p = f32::powf(2.0, -(o as f32));
 
     f * p
@@ -137,10 +77,13 @@ fn test_key_to_freq_approx() {
         f32::abs(x - y) < 0.001 * f32::min(x, y)
     }
 
-    assert!(matches(69), "{}", 69);
-    assert!(matches(116), "{}", 116);
-
     for k in 0..127 {
-        assert!(matches(k), "{}", k);
+        assert!(
+            matches(k),
+            "{} {} {}",
+            k,
+            key_to_freq(k),
+            key_to_freq_approx(k),
+        );
     }
 }
