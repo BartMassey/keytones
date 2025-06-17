@@ -5,3 +5,9 @@ edition = "2024"
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "src/docs-header.html" ]
+
+[dependencies]
+microcheby = "0.1.1"
+
+[build-dependencies]
+microcheby = "0.1.1"

@@ -1,4 +1,6 @@
-mod consts;
+mod consts {
+    include!(concat!(env!("OUT_DIR"), "/consts.rs"));
+}
 
 /// Directly computes the frequency for a given midi key value $k$,
 /// using the formula

@@ -5,3 +5,12 @@ version = 4
 [[package]]
 name = "keytones"
 version = "0.1.0"
+dependencies = [
+ "microcheby",
+]
+
+[[package]]
+name = "microcheby"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ca271460cbe02d1a3aad03b2a174ca43e3395eaa0ef5fb7cc25887d5491ea27"
