@@ -1,4 +1,8 @@
+#![no_std]
+
 use microcheby::ChebyshevExpansion as C;
+#[cfg(not(feature = "std"))]
+use num_traits::float::*;
 
 mod consts {
     include!(concat!(env!("OUT_DIR"), "/consts.rs"));
