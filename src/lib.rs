@@ -1,3 +1,19 @@
+/*!
+This crate implements functions that take a MIDI key number
+(in the range 0 to 127 inclusive) and produce a note
+frequency or period.
+
+There are two versions of these routines: "exact" versions
+with high precision and "approximate" versions. The
+approximate versions are "accurate enough". They may be
+slightly faster, and may take slightly less program memory —
+neither of these has been tested, though.
+
+The crate can be compiled `no_std` with
+`--no-default-features`. Otherwise the `std` feature will be
+used.
+*/
+
 #![no_std]
 
 use microcheby::ChebyshevExpansion as C;
