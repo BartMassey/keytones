@@ -18,7 +18,7 @@ used.
 
 use microcheby::ChebyshevExpansion as C;
 #[cfg(not(feature = "std"))]
-use num_traits::float::*;
+pub use num_traits::float::*;
 
 mod consts {
     include!(concat!(env!("OUT_DIR"), "/consts.rs"));
@@ -32,14 +32,14 @@ mod consts {
 /// # Examples
 ///
 /// ```
-/// # use keytones::key_to_freq;
-/// assert_eq!(key_to_freq(69).round(), 440.0);
+/// # use keytones::key_to_frequency;
+/// assert_eq!(key_to_frequency(69).round(), 440.0);
 /// ```
 ///
 /// # Panics
 ///
 /// Panics if `key` is not in the range `0..=127`.
-pub fn key_to_freq(key: u8) -> f32 {
+pub fn key_to_frequency(key: u8) -> f32 {
     assert!(key < 128);
     440.0 * f32::powf(2.0, (key as f32 - 69.0) / 12.0)
 }
@@ -62,7 +62,7 @@ pub fn key_to_freq(key: u8) -> f32 {
 ///
 /// Panics if `key` is not in the range `0..=127`.
 pub fn key_to_period(key: u8) -> f32 {
-    1.0 / key_to_freq(key)
+    1.0 / key_to_frequency(key)
 }
 
 fn key_to_params_top(key: u8) -> (u8, u8) {
@@ -94,14 +94,14 @@ fn test_key_to_params_top() {
 /// # Examples
 ///
 /// ```
-/// # use keytones::key_to_freq_approx;
-/// assert_eq!(key_to_freq_approx(69).round(), 440.0);
+/// # use keytones::key_to_frequency_approx;
+/// assert_eq!(key_to_frequency_approx(69).round(), 440.0);
 /// ```
 ///
 /// # Panics
 ///
 /// Panics if `key` is not in the range `0..=127`.
-pub fn key_to_freq_approx(key: u8) -> f32 {
+pub fn key_to_frequency_approx(key: u8) -> f32 {
     let (m, o) = key_to_params_top(key);
     let approx = C::const_new(0.0, 4.0 / 11.0, consts::CHEBYSHEV_TOP_OCTAVE);
     let f = approx.eval_4(m as f32);
@@ -132,8 +132,8 @@ mod test {
 }
 
 #[test]
-fn test_key_to_freq_approx() {
-    test::check(key_to_freq, key_to_freq_approx, 0.001);
+fn test_key_to_frequency_approx() {
+    test::check(key_to_frequency, key_to_frequency_approx, 0.001);
 }
 
 fn key_to_params_bottom(key: u8) -> (u8, u8) {
