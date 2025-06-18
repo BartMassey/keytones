@@ -92,24 +92,28 @@ pub fn key_to_freq_approx(key: u8) -> f32 {
 
 #[cfg(test)]
 mod test {
-    pub fn matches(k: u8, f: fn(u8) -> f32, g: fn(u8) -> f32, prec: f32) -> bool {
+    fn matches(k: u8, f: fn(u8) -> f32, g: fn(u8) -> f32, prec: f32) -> bool {
         let x = f(k);
         let y = g(k);
         f32::abs(x - y) < prec * f32::min(x, y)
+    }
+
+    pub fn check(f: fn(u8) -> f32, g: fn(u8) -> f32, prec: f32) {
+        for k in 0..127 {
+            assert!(
+                matches(k, f, g, prec),
+                "{} {} {}",
+                k,
+                f(k),
+                g(k),
+            );
+        }
     }
 }
 
 #[test]
 fn test_key_to_freq_approx() {
-    for k in 0..127 {
-        assert!(
-            test::matches(k, key_to_freq, key_to_freq_approx, 0.001),
-            "{} {} {}",
-            k,
-            key_to_freq(k),
-            key_to_freq_approx(k),
-        );
-    }
+    test::check(key_to_freq, key_to_freq_approx, 0.001);
 }
 
 fn key_to_params_bottom(key: u8) -> (u8, u8) {
@@ -159,13 +163,5 @@ pub fn key_to_period_approx(key: u8) -> f32 {
 
 #[test]
 fn test_key_to_period_approx() {
-    for k in 0..127 {
-        assert!(
-            test::matches(k, key_to_period, key_to_period_approx, 0.001),
-            "{} {} {}",
-            k,
-            key_to_period(k),
-            key_to_period_approx(k),
-        );
-    }
+    test::check(key_to_period, key_to_period_approx, 0.001);
 }
