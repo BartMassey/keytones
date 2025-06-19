@@ -1,5 +1,5 @@
 # keytones: MIDI key to frequency or period
-Bart Massey 2024 (version 0.1.0)
+Bart Massey 2025 (version 0.2.0)
 
 This crate implements functions that take a MIDI key number
 (in the range 0 to 127 inclusive) and produce a note

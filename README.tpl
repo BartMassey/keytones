@@ -1,5 +1,5 @@
 # {{crate}}: MIDI key to frequency or period
-Bart Massey 2024 (version {{version}})
+Bart Massey 2025 (version {{version}})
 
 {{readme}}
 
